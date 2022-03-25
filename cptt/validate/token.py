@@ -1,6 +1,9 @@
 from __future__ import annotations
+
 import string
-from typing import TextIO, Generator
+from typing import Generator
+from typing import TextIO
+
 from cptt.validate.base import Validator
 
 StrGenerator = Generator[str, None, None]

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import io
+
 from cptt.validate import TokenValidator
 
 

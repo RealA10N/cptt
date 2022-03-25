@@ -1,4 +1,8 @@
-from setuptools import setup, find_packages
+from __future__ import annotations
+
+from setuptools import find_packages
+from setuptools import setup
+
 import cptt
 
 with open("README.md", encoding="utf8") as f:

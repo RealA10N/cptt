@@ -1,6 +1,10 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from typing import TextIO, Generator, TYPE_CHECKING
+
+from abc import ABC
+from abc import abstractmethod
+from typing import Generator
+from typing import TextIO
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from cptt.error import TestingError
