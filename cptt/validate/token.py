@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import string
 from itertools import zip_longest
 from typing import Generator
@@ -33,6 +34,19 @@ class TokenValidator(Validator):
 
         if tok:
             yield tok
+
+    NUMBER_REGEX = re.compile(r'[\-\+]?0*\d{,20}(\.\d{,20})?')
+
+    @classmethod
+    def token_to_number(cls, token: str) -> float | None:
+        """ Converts the given token into a floating number. Returns None if
+        the given token is not recognized as a number. We use a custom regular
+        expression before passing the token to the `float` constructor to
+        disallow tokens such as 'inf' and other Python specifics. """
+
+        match = cls.NUMBER_REGEX.fullmatch(token)
+        if match:
+            return float(token)
 
     def compare_tokens(self, out: str, exp: str) -> ErrorGenerator:
         """ Compare two strings and yield errors if there are any. """
