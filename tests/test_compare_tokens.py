@@ -26,6 +26,10 @@ def test_token_equality():
     assert list(compare_tokens('abc', 'abc')) == []
 
 
+def test_case_insensitivity():
+    assert list(compare_tokens('hello', 'HELLO')) == []
+
+
 def test_not_equal_bitstrings():
     tok = '01' * 100
     tok2 = '0' + tok

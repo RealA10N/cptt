@@ -59,7 +59,7 @@ class TokenValidator(Validator):
 
         exp_num = cls.token_to_number(exp)
         if exp_num is None:
-            if out != exp:
+            if out.lower() != exp.lower():
                 yield TestingError.construct('TOKD')
 
         else:
