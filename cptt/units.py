@@ -64,7 +64,13 @@ def _parse_unit_word(word: str) -> tuple[int, str]:
     match = NUM_UNIT_PATTERN.fullmatch(word.strip())
     if not match:
         raise ValueError(f'{word!r} not in <NUMBER><UNIT> format')
-    return match.group('num'), match.group('unit').lower()
+
+    try:
+        num = float(match.group('num'))
+    except ValueError:
+        num = 1
+
+    return num, match.group('unit').lower()
 
 
 def unit_type(unit):
