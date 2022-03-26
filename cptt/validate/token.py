@@ -20,6 +20,9 @@ class TokenValidator(Validator):
         """ Consumes tokens (continuous words) from the given text stream and
         yields them one after another. """
 
+        # from my knowledge, python's file `read` method is buffered.
+        # this means that is it ok to read one character at a time.
+
         c = stream.read(1)
         tok = ''
 
@@ -53,21 +56,19 @@ class TokenValidator(Validator):
     @classmethod
     def compare_tokens(cls, out: str, exp: str) -> ErrorGenerator:
         """ Compare two strings and yield errors if there are any. """
-        out_num = cls.token_to_number(out)
+
         exp_num = cls.token_to_number(exp)
-
-        if out_num is None and exp_num is not None:
-            yield TestingError.construct('ENGT')
-
-        if out_num is not None and exp_num is None:
-            yield TestingError.construct('ETGN')
-
-        if out_num is None and exp_num is None:
+        if exp_num is None:
             if out != exp:
                 yield TestingError.construct('TOKD')
 
-        if out_num is not None and exp_num is not None:
-            if abs(out_num - exp_num) > cls.NUMBERS_EQUALITY_DELTA:
+        else:
+            out_num = cls.token_to_number(out)
+
+            if out_num is None:
+                yield TestingError.construct('EXNU')
+
+            elif abs(out_num - exp_num) > cls.NUMBERS_EQUALITY_DELTA:
                 yield TestingError.construct('NUMD')
 
     def validate(self, output: TextIO, expected: TextIO) -> ErrorGenerator:

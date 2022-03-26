@@ -32,3 +32,15 @@ def test_not_equal_bitstrings():
     errors = list(compare_tokens(tok, tok2))
     assert len(errors) == 1
     assert errors[0].code == 'TOKD'
+
+
+def test_expected_number():
+    errors = list(compare_tokens('abc', '10'))
+    assert len(errors) == 1
+    assert errors[0].code == 'EXNU'
+
+
+def test_expected_token():
+    errors = list(compare_tokens('10', 'IO'))
+    assert len(errors) == 1
+    assert errors[0].code == 'TOKD'
