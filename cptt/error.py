@@ -10,8 +10,12 @@ class TestingError:
     message: str
 
     ERRORS = {
-        'F001': (1, 'output shorter than expected'),
-        'F002': (1, 'output longer then expected'),
+        'MORE': (1, 'output shorter than expected'),
+        'LESS': (1, 'output longer then expected'),
+        'ENGT': (2, 'expected number, got token'),
+        'ETGN': (2, 'expected token, got number'),
+        'TOKD': (3, 'tokens differ'),
+        'NUMD': (3, 'numbers differ'),
     }
 
     @classmethod

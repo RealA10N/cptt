@@ -35,6 +35,7 @@ class TokenValidator(Validator):
         if tok:
             yield tok
 
+    NUMBERS_EQUALITY_DELTA = 1e-5
     NUMBER_REGEX = re.compile(r'[\-\+]?0{,20}\d{,20}(\.\d{,20})?')
 
     @classmethod
@@ -49,18 +50,34 @@ class TokenValidator(Validator):
         if match:
             return float(token)
 
-    def compare_tokens(self, out: str, exp: str) -> ErrorGenerator:
+    @classmethod
+    def compare_tokens(cls, out: str, exp: str) -> ErrorGenerator:
         """ Compare two strings and yield errors if there are any. """
-        pass
+        out_num = cls.token_to_number(out)
+        exp_num = cls.token_to_number(exp)
+
+        if out_num is None and exp_num is not None:
+            yield TestingError.construct('ENGT')
+
+        if out_num is not None and exp_num is None:
+            yield TestingError.construct('ETGN')
+
+        if out_num is None and exp_num is None:
+            if out != exp:
+                yield TestingError.construct('TOKD')
+
+        if out_num is not None and exp_num is not None:
+            if abs(out_num - exp_num) > cls.NUMBERS_EQUALITY_DELTA:
+                yield TestingError.construct('NUMD')
 
     def validate(self, output: TextIO, expected: TextIO) -> ErrorGenerator:
         outtoks, exptoks = self.tokenize(output), self.tokenize(expected)
         for out, exp in zip_longest(outtoks, exptoks):
             if out is None:
-                yield TestingError.construct('F001')
+                yield TestingError.construct('LESS')
                 return
             elif exp is None:
-                yield TestingError.construct('F002')
+                yield TestingError.construct('MORE')
                 return
             else:
                 yield from self.compare_tokens(out, exp)
