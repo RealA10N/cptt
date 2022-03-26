@@ -7,6 +7,10 @@ def test_long_bitstring():
     assert TokenValidator.token_to_number('10' * 20) is None
 
 
+def test_long_zero_bitstrong():
+    assert TokenValidator.token_to_number('0' * 50) is None
+
+
 def test_short_integer():
     assert TokenValidator.token_to_number('12345') == 12345
 

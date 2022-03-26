@@ -35,14 +35,15 @@ class TokenValidator(Validator):
         if tok:
             yield tok
 
-    NUMBER_REGEX = re.compile(r'[\-\+]?0*\d{,20}(\.\d{,20})?')
+    NUMBER_REGEX = re.compile(r'[\-\+]?0{,20}\d{,20}(\.\d{,20})?')
 
     @classmethod
     def token_to_number(cls, token: str) -> float | None:
         """ Converts the given token into a floating number. Returns None if
         the given token is not recognized as a number. We use a custom regular
         expression before passing the token to the `float` constructor to
-        disallow tokens such as 'inf' and other Python specifics. """
+        disallow tokens such as 'inf', and long strings that look like a number
+        but actually should be treated as strings (bitstrings for example). """
 
         match = cls.NUMBER_REGEX.fullmatch(token)
         if match:
