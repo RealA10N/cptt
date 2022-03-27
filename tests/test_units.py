@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from cptt.units import information_unit
 from cptt.units import time_unit
 
@@ -26,3 +28,21 @@ def test_default_info():
 
 def test_info():
     assert information_unit('32') == 32_000_000
+
+
+def test_not_in_format():
+    with pytest.raises(ValueError) as err:
+        information_unit('mb32')
+    assert 'format' in str(err.value)
+
+
+def test_invalid_information_unit():
+    with pytest.raises(ValueError) as err:
+        information_unit('23dag')
+    assert 'invalid unit' in str(err.value)
+
+
+def test_invalid_time_unit():
+    with pytest.raises(ValueError) as err:
+        time_unit('week')
+    assert 'invalid unit' in str(err.value)
