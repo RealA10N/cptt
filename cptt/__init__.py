@@ -5,3 +5,6 @@ __description__ = ' '.join((
     'Execute programs and enforce certain behavior such as',
     'time and memory constrains, output format and validation, etc.',
 ))
+
+from .__main__ import main, run_main
+__all__ = ['main', 'run_main']

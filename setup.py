@@ -30,4 +30,9 @@ setup(
     author_email=cptt.__author_email__,
 
     packages=find_packages(include=['cptt*']),
+    entry_points={
+        'console_scripts': [
+            'cptt=cptt:run_main',
+        ],
+    },
 )
