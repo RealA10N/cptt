@@ -51,7 +51,13 @@ class MonitoredProcess(psutil.Popen):
         """ Waits until the given process terminates, while constantly checking
         for violations of the time and memory constrains. If one of the
         constrains is violated, an exception is thrown and the process is
-        killed. """
+        killed.
+
+        Be aware that similarly to subprocess's `Popen.wait` method, if you are
+        piping `stdout` or `stderr` and they are very large, the program might
+        get into a deadlock state caused by the operating system. In that case,
+        you will have to use threads to read from the stream and free up space
+        in the buffer. """
 
         start_time = time.time()
 

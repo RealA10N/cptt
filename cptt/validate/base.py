@@ -6,7 +6,7 @@ from typing import Generator
 from typing import TextIO
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from cptt.error import TestingError
     ErrorGenerator = Generator[TestingError, None, None]
 
