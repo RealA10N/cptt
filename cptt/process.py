@@ -19,19 +19,29 @@ class MemoryLimitExceeded(RuntimeError):
 
 class MonitoredProcess(psutil.Popen):
 
-    def _time_guard(self, start: float, time_limit: float) -> None:
+    def __init__(self, *args, **kwargs) -> None:
+        self.duration = 0
+        self.memory_used = 0
+        self._start_time = time.time()
+        # We do not use psutils 'create_time' method because it is inaccurate,
+        # and uses the time of the operatin system instead of Python's time,
+        # which is consistant for our usage.
+
+        return super().__init__(*args, **kwargs)
+
+    def _time_guard(self, time_limit: float | None) -> None:
         """ Asserts that the process is still running in his given timeframe.
         If the current time is pass the allowed time for the process, a
         `TimeLimitExceeded` exception is raised. """
 
-        cur = time.time()
-        if cur - start > time_limit:
+        self.duration = time.time() - self._start_time
+        if time_limit is not None and self.duration > time_limit:
             raise TimeLimitExceeded(
-                f'process running {cur-start} seconds '
+                f'process running {self.duration} seconds '
                 f'(limited to {time_limit})',
             )
 
-    def _memory_guard(self, memory_limit: float) -> None:
+    def _memory_guard(self, memory_limit: float | None) -> None:
         """ Asserts that the process uses no more memory then he is allowed to.
         If the process is caught using more memory than he is allowed to, a
         `MemoryLimitExceeded` exception is raised. """
@@ -41,7 +51,9 @@ class MonitoredProcess(psutil.Popen):
         except psutil.NoSuchProcess:
             return
 
-        if usage > memory_limit:
+        self.memory_used = max(self.memory_used, usage)
+
+        if memory_limit is not None and usage > memory_limit:
             raise MemoryLimitExceeded(
                 f'process caught using {usage} bytes '
                 f'(limited to {memory_limit})',
@@ -62,8 +74,6 @@ class MonitoredProcess(psutil.Popen):
         get into a deadlock state caused by the operating system. In that case,
         use the `communicate` method instead. """
 
-        start_time = time.time()
-
         delay = 0.001
         # similar delay constant is used in the subprocess implementation
         # https://tinyurl.com/ydc9kjy4
@@ -73,11 +83,9 @@ class MonitoredProcess(psutil.Popen):
 
         try:
             while self.poll() is None:
+                self._memory_guard(memory_limit)
+                self._time_guard(time_limit)
                 time.sleep(delay)
-                if time_limit:
-                    self._time_guard(start_time, time_limit)
-                if memory_limit:
-                    self._memory_guard(memory_limit)
 
         finally:
             try:
