@@ -4,7 +4,6 @@ import re
 import string
 from itertools import zip_longest
 from typing import Generator
-from typing import TextIO
 
 from cptt.error import TestingError
 from cptt.validate.base import Validator
@@ -16,14 +15,13 @@ StrGenerator = Generator[str, None, None]
 class TokenValidator(Validator):
 
     @staticmethod
-    def tokenize(stream: TextIO) -> StrGenerator:
-        """ Consumes tokens (continuous words) from the given text stream and
-        yields them one after another. """
+    def tokenize(source: str) -> StrGenerator:
+        """ Consumes tokens (continuous words) from the given text strings and
+        yields the tokens one after another, until the end of the string is
+        reached. """
 
-        # from my knowledge, python's file `read` method is buffered.
-        # this means that is it ok to read one character at a time.
-
-        c = stream.read(1)
+        stream = iter(source)
+        c = next(stream, None)
         tok = ''
 
         while c:
@@ -33,7 +31,7 @@ class TokenValidator(Validator):
                 tok = ''
             else:
                 tok += c
-            c = stream.read(1)
+            c = next(stream, None)
 
         if tok:
             yield tok
@@ -71,14 +69,18 @@ class TokenValidator(Validator):
             elif abs(out_num - exp_num) > cls.NUMBERS_EQUALITY_DELTA:
                 yield TestingError.construct('NUMD')
 
-    def validate(self, output: TextIO, expected: TextIO) -> ErrorGenerator:
-        outtoks, exptoks = self.tokenize(output), self.tokenize(expected)
-        for out, exp in zip_longest(outtoks, exptoks):
+    def validate(self, output: str, expected: str) -> ErrorGenerator:
+        for out, exp in zip_longest(
+                self.tokenize(output), self.tokenize(expected),
+        ):
+
             if out is None:
                 yield TestingError.construct('LESS')
                 return
+
             elif exp is None:
                 yield TestingError.construct('MORE')
                 return
+
             else:
                 yield from self.compare_tokens(out, exp)
