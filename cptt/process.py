@@ -61,14 +61,25 @@ class MonitoredProcess(psutil.Popen):
 
         start_time = time.time()
 
+        delay = 0.001
+        # similar delay constant is used in the subprocess implementation
+        # https://tinyurl.com/ydc9kjy4
+        # using a delay (even a small one) significantly improves performance,
+        # because the operating system doesn't think that we are busy, but
+        # actually just waiting for an event and doing some checks now and then.
+
         try:
             while self.poll() is None:
+                time.sleep(delay)
                 if time_limit:
                     self._time_guard(start_time, time_limit)
                 if memory_limit:
                     self._memory_guard(memory_limit)
 
         finally:
-            self.kill()
+            try:
+                self.kill()
+            except psutil.NoSuchProcess:
+                pass
 
         return self.returncode
