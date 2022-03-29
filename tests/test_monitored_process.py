@@ -45,6 +45,22 @@ def test_echo():
     assert process.stdout.read() == 'hi\n'
 
 
+def test_hello_world():
+    process = MonitoredProcess(
+        python_script("""
+            print("Hello, World!")
+        """),
+        encoding='utf8',
+        stdout=subprocess.PIPE,
+    )
+
+    print(process, process.name(), process.memory_info())
+    process.wait()
+    assert process.stdout.read() == 'Hello, World!\n'
+    assert 0 < process.duration
+    assert 0 < process.memory_used
+
+
 def test_communicate_streams():
     process = MonitoredProcess(
         python_script("""
@@ -96,13 +112,14 @@ def test_communicate_large_output():
 def test_memory_limit():
     process = MonitoredProcess(
         python_script("""
-        array = bytes(20_000_000)
-        print(array)
+            array = bytes(b'0123456789' * 1_000_000) # 10MB
         """),
     )
 
     with pytest.raises(MemoryLimitExceeded):
-        process.wait(time_limit=1, memory_limit=20_000_000)
+        process.wait(time_limit=10, memory_limit=10_000_000)
+
+    assert process.memory_used > 10_000_000
 
 
 def test_time_limit():
@@ -114,4 +131,6 @@ def test_time_limit():
     )
 
     with pytest.raises(TimeLimitExceeded):
-        process.wait(time_limit=0.5, memory_limit=10_000_000)
+        process.wait(time_limit=0.5)
+
+    assert process.duration > 0.5
