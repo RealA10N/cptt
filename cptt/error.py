@@ -13,6 +13,7 @@ class TestingError:
         'MORE': (1, 'output shorter than expected'),
         'LESS': (1, 'output longer then expected'),
         'EXNU': (2, 'expected number, got token'),
+        'DIFF': (3, 'outputs differ'),
         'TOKD': (3, 'tokens differ'),
         'NUMD': (3, 'numbers differ'),
     }
