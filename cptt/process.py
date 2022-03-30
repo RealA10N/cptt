@@ -96,8 +96,8 @@ class MonitoredProcess(psutil.Popen):
         return self.returncode
 
     @staticmethod
-    def _consume_stream(stream: IO[AnyStr], to: list) -> None:
-        to.append(stream.read())
+    def _consume_stream(stream: IO[AnyStr]) -> None:
+        stream._buffer = stream.read()
         stream.close()
 
     def communicate(
@@ -116,23 +116,19 @@ class MonitoredProcess(psutil.Popen):
 
         threads: list[threading.Thread] = list()
 
-        if self.stdout is not None:
-            self._stdout_buf = list()
+        def create_thread(stream):
             threads.append(
                 threading.Thread(
                     target=self._consume_stream,
-                    args=(self.stdout, self._stdout_buf),
+                    args=(stream,),
                 ),
             )
 
+        if self.stdout is not None:
+            create_thread(self.stdout)
+
         if self.stderr is not None:
-            self._stderr_buf = list()
-            threads.append(
-                threading.Thread(
-                    target=self._consume_stream,
-                    args=(self.stderr, self._stderr_buf),
-                ),
-            )
+            create_thread(self.stderr)
 
         for thread in threads:
             thread.daemon = True
@@ -143,7 +139,12 @@ class MonitoredProcess(psutil.Popen):
         finally:
             for thread in threads:
                 thread.join()
+            try:
+                self.kill()
+            except psutil.NoSuchProcess:
+                pass
 
-        stdout = self._stdout_buf[0] if self.stdout else None
-        stderr = self._stderr_buf[0] if self.stderr else None
-        return (stdout, stderr)
+        return (
+            None if self.stdout is None else self.stdout._buffer,
+            None if self.stderr is None else self.stderr._buffer,
+        )
