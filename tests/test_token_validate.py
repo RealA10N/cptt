@@ -17,11 +17,20 @@ def test_long_token():
     output = '123456789' * 100_000
     expect = '123456789' * 100_000
     validator = TokenValidator(expect)
-    validator.validate(output, stderr='', returncode=0)
+    validator.validate(stdout=output, stderr='', returncode=0)
 
 
 def test_lots_of_tokens():
     output = 'tOkEn \n' * 100_000
     expect = ' ToKen' * 100_000
     validator = TokenValidator(expect)
-    validator.validate(output, stderr='', returncode=0)
+    validator.validate(stdout=output, stderr='', returncode=0)
+
+
+def test_lots_last_differ():
+    output = 'tOkEn \n' * 100_000
+    expect = ' ToKen' * 99_000
+    expect += '\n token?'
+    validator = TokenValidator(expect)
+    with pytest.raises(ValidationError):
+        validator.validate(stdout=output, stderr='', returncode=0)

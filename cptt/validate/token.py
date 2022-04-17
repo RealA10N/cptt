@@ -23,7 +23,7 @@ class TokenValidator(OutputValidator):
         except (ValueError, AssertionError):
             raise ValidationError('Tokens differ') from None
 
-    def validate(self, stdout: str, *_, **__) -> None:
+    def validate(self, *, stdout: str, **_) -> None:
         stdout = stdout.split()
         expected = self._expected.split()
 

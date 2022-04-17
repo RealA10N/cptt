@@ -15,7 +15,7 @@ class Validator(ABC):
     """ Comperes the programs output with the expected one. """
 
     @abstractmethod
-    def validate(self, stdout: str, stderr: str, returncode: int) -> None:
+    def validate(self, *, stdout: str, stderr: str, returncode: int) -> None:
         """ Recives the output that is produced by a process and validates
         it. """
 
