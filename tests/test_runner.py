@@ -65,7 +65,7 @@ def test_parallel_jobs():
     from time import time
 
     THREADS = 10
-    SLEEPFOR = 0.1
+    SLEEPFOR = 0.5
 
     runner = RecordingRunner(THREADS)
 
