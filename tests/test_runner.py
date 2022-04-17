@@ -42,13 +42,14 @@ def test_single_job():
 
 
 def test_multiple_jobs():
-    THREADS = 10
+    THREADS = 3
+    SLEEPFOR = 0.5
     runner = RecordingRunner(THREADS)
 
     order = list()
 
     for i in range(1, THREADS + 1):
-        job = Job(python_script(f"from time import sleep; sleep({i/10})"))
+        job = Job(python_script(f"from time import sleep; sleep({i*SLEEPFOR})"))
         order.append(job)
         runner.collect(job)
 
@@ -57,7 +58,7 @@ def test_multiple_jobs():
 
     for event, job in zip(runner.events[THREADS:], order):
         assert isinstance(event, JobEndEvent)
-        assert event.job == job
+        assert event.job is job
 
 
 def test_parallel_jobs():
