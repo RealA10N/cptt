@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from typing import Generator
-
-from cptt.error import TestingError
-from cptt.validate.base import Validator
-
-ErrorGenerator = Generator[TestingError, None, None]
+from cptt.validate import ValidationError
+from cptt.validate.base import OutputValidator
 
 
-class StrictValidator(Validator):
+class StrictValidator(OutputValidator):
 
-    def validate(self, output: str, expected: str) -> ErrorGenerator:
-        if output != expected:
-            yield TestingError.construct('DIFF')
+    def validate(self, stdout: str, *_, **__) -> None:
+        if stdout != self._expected:
+            raise ValidationError('Output does not match expectations')

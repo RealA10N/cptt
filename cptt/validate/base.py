@@ -2,20 +2,27 @@ from __future__ import annotations
 
 from abc import ABC
 from abc import abstractmethod
-from typing import Generator
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
-if TYPE_CHECKING:  # pragma: no cover
-    from cptt.error import TestingError
-    ErrorGenerator = Generator[TestingError, None, None]
+
+@dataclass
+class ValidationError(Exception):
+    """ Raised by a validation if there is any sort of validation error. """
+    message: str
 
 
 class Validator(ABC):
     """ Comperes the programs output with the expected one. """
 
     @abstractmethod
-    def validate(self, output: str, expected: str) -> ErrorGenerator:
-        """ Comperes the programs output with the expected one. 'output' is the
-        stream that the program writes it's output to. 'expected' is a stream
-        that contains expected output that the validator uses as a reference
-        for compering. """
+    def validate(self, stdout: str, stderr: str, returncode: int) -> None:
+        """ Recives the output that is produced by a process and validates
+        it. """
+
+
+class OutputValidator(Validator):
+    """ Validators that compare the output of the program with some
+    expected output. """
+
+    def __init__(self, expected: str) -> None:
+        self._expected = expected
