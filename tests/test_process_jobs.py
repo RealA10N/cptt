@@ -3,23 +3,12 @@ from __future__ import annotations
 import random
 
 from cptt.run import JobEndEvent
-from cptt.run import JobEvent
 from cptt.run import JobStartEvent
-from cptt.run import Runner
 from cptt.run.process import ProcessJob
 from cptt.run.process import ProcessStatus
 from cptt.run.process import ProcessStatusEvent
 from testing import python_script
-
-
-class RecordingRunner(Runner):
-
-    def __init__(self, threads: int = 1) -> None:
-        super().__init__(threads)
-        self.events = list()
-
-    def _handle_job_event(self, event: JobEvent) -> None:
-        self.events.append(event)
+from testing.runners import RecordingRunner
 
 
 def test_single_job():
