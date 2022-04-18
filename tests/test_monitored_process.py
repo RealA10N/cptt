@@ -91,7 +91,7 @@ def test_communicate_large_input():
 
     TESTS = int(2e5)
 
-    rand = lambda: random.randint(-1e9, 1e9)
+    rand = lambda: random.randint(int(1e9), int(1e9))
     cases = [(rand(), rand()) for _ in range(TESTS)]
 
     INPUT = f'{TESTS}\n' + ''.join(f'{a} {b}\n' for a, b in cases)
