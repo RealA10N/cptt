@@ -10,10 +10,10 @@ from testing.runners import RecordingRunner
 
 
 class LambdaJob(Job):
-    def __init__(self, func, args=(), kwargs={}) -> None:
+    def __init__(self, func, args=None, kwargs=None) -> None:
         self.func = func
-        self.args = args
-        self.kwargs = kwargs
+        self.args = args if args else tuple()
+        self.kwargs = kwargs if kwargs else dict()
 
     def execute(self, *_) -> None:
         self.func(*self.args, **self.kwargs)

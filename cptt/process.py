@@ -100,6 +100,11 @@ class MonitoredProcess(psutil.Popen):
         stream._buffer = stream.read()
         stream.close()
 
+    @staticmethod
+    def _feed_stream(stream: IO[AnyStr], input: AnyStr) -> None:
+        stream.write(input)
+        stream.close()
+
     def communicate(
         self,
         input: AnyStr = None,
@@ -110,13 +115,17 @@ class MonitoredProcess(psutil.Popen):
         Returns the buffered stdout and stderr stream values, after they
         have been consumed and closed (if they were piped). """
 
-        if input:
-            self.stdin.write(input)
-            self.stdin.close()
-
         threads: list[threading.Thread] = list()
 
-        def create_thread(stream):
+        if input:
+            threads.append(
+                threading.Thread(
+                    target=self._feed_stream,
+                    args=(self.stdin, input),
+                ),
+            )
+
+        def create_consuming_thread(stream):
             threads.append(
                 threading.Thread(
                     target=self._consume_stream,
@@ -125,10 +134,10 @@ class MonitoredProcess(psutil.Popen):
             )
 
         if self.stdout is not None:
-            create_thread(self.stdout)
+            create_consuming_thread(self.stdout)
 
         if self.stderr is not None:
-            create_thread(self.stderr)
+            create_consuming_thread(self.stderr)
 
         for thread in threads:
             thread.daemon = True

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import subprocess
 
 import pytest
@@ -84,6 +85,34 @@ def test_communicate_large_output():
 
     out, _ = process.communicate()
     assert len(out) > 100_000
+
+
+def test_communicate_large_input():
+
+    TESTS = int(2e5)
+
+    rand = lambda: random.randint(-1e9, 1e9)
+    cases = [(rand(), rand()) for _ in range(TESTS)]
+
+    INPUT = f'{TESTS}\n' + ''.join(f'{a} {b}\n' for a, b in cases)
+    EXPECTED = ''.join(f'{a+b}\n' for a, b in cases)
+    CODE = """
+        t = int(input())
+        for _ in range(t):
+            a, b = (int(a) for a in input().split())
+            print(a+b)
+    """
+
+    process = MonitoredProcess(
+        python_script(CODE),
+        encoding='utf8',
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+    )
+
+    out, _ = process.communicate(INPUT)
+    assert out == EXPECTED
 
 
 def test_memory_limit():
