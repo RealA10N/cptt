@@ -95,7 +95,7 @@ def test_communicate_large_input():
     cases = [(rand(), rand()) for _ in range(TESTS)]
 
     INPUT = f'{TESTS}\n' + ''.join(f'{a} {b}\n' for a, b in cases)
-    EXPECTED = ''.join(f'{a+b}\n' for a, b in cases)
+    EXPECTED = ''.join(f'{a + b}\n' for a, b in cases)
     CODE = """
         t = int(input())
         for _ in range(t):
