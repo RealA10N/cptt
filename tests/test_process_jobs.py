@@ -50,7 +50,7 @@ def test_multiple_jobs():
     for i in range(1, THREADS + 1):
         job = ProcessJob(
             python_script(
-                f"from time import sleep; sleep({i*SLEEPFOR})",
+                f"from time import sleep; sleep({i * SLEEPFOR})",
             ),
         )
 
